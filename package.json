@@ -1,12 +1,16 @@
 {
   "name": "nedb",
-  "version": "1.8.0",
+  "version": "1.8.0-lineaje-01",
   "author": {
     "name": "Louis Chatriot",
     "email": "louis.chatriot@gmail.com"
   },
   "contributors": [
-    "Louis Chatriot"
+    "Louis Chatriot",
+    {
+      "name": "Lineaje DepFixer",
+      "email": "221268890+Lineaje-DepFixer@users.noreply.github.com"
+    }
   ],
   "description": "File-based embedded data store for node.js",
   "keywords": [
@@ -17,7 +21,7 @@
   "homepage": "https://github.com/louischatriot/nedb",
   "repository": {
     "type": "git",
-    "url": "git@github.com:louischatriot/nedb.git"
+    "url": "https://github.com/lineaje-labs-gos/nedb"
   },
   "dependencies": {
     "async": "0.2.10",
