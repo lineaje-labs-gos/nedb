@@ -1727,6 +1727,79 @@ describe('Database', function () {
 
     });   // ==== End of 'Update - Callback signature' ==== //
 
+    describe('Database Update - NeDB Prototype Pollution Protection', function () {
+      let db;
+      beforeEach(function (done) {
+        db = new Datastore();
+        db.insert({ hello: 'world', nested: { value: 1 } }, done);
+      });
+      it('should prevent __proto__ pollution via $set', function (done) {
+        db.update(
+          { hello: 'world' },
+          { $set: { '__proto__.polluted_1': true } },
+          {},
+          (err) => {
+            assert.isNotNull(err);
+            assert.match(err.message, /Unsafe key detected/);
+            ({}).should.not.have.property('polluted_1');
+            done();
+          }
+        );
+      });
+
+      it('should prevent constructor.prototype pollution via $set', function (done) {
+        db.update(
+          { hello: 'world' },
+          { $set: { 'constructor.prototype.polluted_2': true } },
+          {},
+          (err) => {
+            assert.isNotNull(err);
+            assert.match(err.message, /Unsafe key detected/);
+            ({}).should.not.have.property('polluted_2');
+            done();
+          }
+        );
+      });
+
+      it('should prevent nested prototype pollution', function (done) {
+        db.update(
+          { hello: 'world' },
+          { $set: { 'nested.__proto__.polluted_3': true } },
+          {},
+          (err) => {
+            assert.isNotNull(err);
+            assert.match(err.message, /Unsafe key detected/);
+            ({}).should.not.have.property('polluted_3');
+            done();
+          }
+        );
+      });
+
+      it('should allow safe nested keys but reject unsafe ones', function (done) {
+        db.update(
+          { hello: 'world' },
+          {
+            $set: {
+              'nested.value': 42,
+              '__proto__.polluted_4': true,
+            },
+          },
+          {},
+          (err) => {
+            assert.isNotNull(err);
+            assert.match(err.message, /Unsafe key detected/);
+            // safeKey should remain unaffected
+            db.findOne({ hello: 'world' }, (err2, doc) => {
+              assert.isNull(err2);
+              assert.equal(doc.nested.value, 1); // original value unchanged
+              done();
+            });
+          }
+        );
+      });
+      
+    });
+
   });   // ==== End of 'Update' ==== //
 
 
